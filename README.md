@@ -1,4 +1,4 @@
-# 📊 Retail Intelligence Platform
+# Retail Intelligence Platform
 
 ### Demand Forecasting, Inventory Optimization & Time Series Analysis using Machine Learning, Streamlit and Power BI
 
