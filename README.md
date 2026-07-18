@@ -183,6 +183,9 @@ The interactive web application enables users to:
 
 # 📊 Power BI Dashboard
 
+![Dashboard](images/powerbi_dashboard.png)
+
+
 The Power BI dashboard provides business users with interactive insights including:
 
 - Sales Overview
@@ -211,43 +214,43 @@ The Power BI dashboard provides business users with interactive insights includi
 
 ## Predict Demand
 
-![Predict](images/predict_demand.png)
+![Predict](images/demand_prediction.png)
 
 ---
 
 ## Inventory Optimization
 
-![Inventory](images/inventory_optimization.png)
+![Inventory](images/inventory_table.png)
 
 ---
 
 ## Products Requiring Reorder
 
-![Reorder](images/products_requiring_reorder.png)
+![Reorder](images/prod_reorder.png)
 
 ---
 
 ## Model Comparison
 
-![Comparison](images/model_comparison.png)
+![Comparison](images/model_comparsion.png)
 
 ---
 
 ## Correlation Heatmap
 
-![Heatmap](images/correlation_heatmap.png)
+![Heatmap](images/heatmap.png)
 
 ---
 
 ## Actual vs Predicted
 
-![Prediction](images/actual_vs_predicted.png)
+![Prediction](images/actual_vs_pred.png)
 
 ---
 
 ## Performance Metrics
 
-![Metrics](images/performance_metrics.png)
+![Metrics](images/observ.png)
 
 ---
 
