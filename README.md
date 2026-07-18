@@ -6,6 +6,7 @@
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-orange)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Web%20App-red)
 ![PowerBI](https://img.shields.io/badge/Power%20BI-Dashboard-yellow)
+![SQL](https://img.shields.io/badge/SQL-Database-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
@@ -70,33 +71,31 @@ The platform predicts future product demand using historical sales data and reco
 
 | Category | Technologies |
 |-----------|-------------|
-| Programming | Python |
+| Programming | Python, SQL |
 | Data Processing | Pandas, NumPy |
-| Machine Learning | Scikit-Learn, XGBoost |
-| Time Series | ARIMA (Statsmodels) |
-| Visualization | Matplotlib, Seaborn |
-| Dashboard | Power BI |
-| Deployment | Streamlit |
+| Database Querying | SQL |
+| Machine Learning | Scikit-learn, XGBoost |
+| Time Series Forecasting | ARIMA (Statsmodels) |
+| Data Visualization | Matplotlib, Seaborn |
+| Business Intelligence | Power BI |
+| Web Application | Streamlit |
 | Model Serialization | Joblib |
+| Version Control | Git, GitHub |
 
 ---
 
-# 📂 Project Structure
+# 📈 What This Project Demonstrates
 
-```
-Retail_Intelligence_Platform/
-
-│── app.py
-│── notebook.ipynb
-│── requirements.txt
-│── README.md
-
-├── data/
-├── images/
-├── models/
-├── dashboard/
-└── outputs/
-```
+- End-to-end Data Science workflow
+- SQL-based data extraction and analysis
+- Machine Learning model development and comparison
+- Time Series Forecasting using ARIMA
+- Retail demand prediction
+- Inventory optimization strategies
+- Interactive Business Intelligence dashboards using Power BI
+- Deployment of ML models using Streamlit
+- Model evaluation using R², MAE, and RMSE
+- Business-focused analytical decision making
 
 ---
 
@@ -262,21 +261,21 @@ The Power BI dashboard provides business users with interactive insights includi
 
 # 📈 Key Features
 
-✅ Retail Demand Forecasting
+Retail Demand Forecasting
 
-✅ Inventory Optimization
+Inventory Optimization
 
-✅ Time Series Forecasting
+Time Series Forecasting
 
-✅ Machine Learning Model Comparison
+Machine Learning Model Comparison
 
-✅ Power BI Dashboard
+Power BI Dashboard
 
-✅ Interactive Streamlit Application
+Interactive Streamlit Application
 
-✅ Product Reorder Recommendation
+Product Reorder Recommendation
 
-✅ Business KPI Visualization
+Business KPI Visualization
 
 ---
 
