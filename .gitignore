@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .idea/
 .ipynb_checkpoints/
+images/models/random_forest_model_backup.pkl

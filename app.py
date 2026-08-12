@@ -1,9 +1,15 @@
 import os
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import joblib
+
+
+# ============================================================
+# PATH CONFIGURATION
+# ============================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -33,18 +39,36 @@ FORECAST_PATH = os.path.join(
     "forecast_results.csv"
 )
 
+
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
+
 st.set_page_config(
     page_title="Retail Demand Forecasting",
     page_icon="📦",
     layout="wide"
 )
 
+
+# ============================================================
+# LOAD MODEL
+# ============================================================
+
 try:
+
     model = joblib.load(MODEL_PATH)
     model_columns = joblib.load(COLUMNS_PATH)
+
 except Exception as e:
+
     st.error(f"Unable to load model files: {e}")
     st.stop()
+
+
+# ============================================================
+# SIDEBAR NAVIGATION
+# ============================================================
 
 st.sidebar.title("📋 Navigation")
 
@@ -59,9 +83,15 @@ page = st.sidebar.radio(
     ]
 )
 
+
+# ============================================================
+# HOME
+# ============================================================
+
 if page == "🏠 Home":
 
     try:
+
         inventory = pd.read_csv(INVENTORY_PATH)
 
         total_products = inventory["Product_ID"].nunique()
@@ -85,15 +115,31 @@ if page == "🏠 Home":
         st.title("📦 Retail Demand Forecasting Dashboard")
 
         st.caption(
-            "End-to-End Machine Learning | Inventory Optimization | Business Analytics"
+            "End-to-End Machine Learning | "
+            "Inventory Optimization | Business Analytics"
         )
 
         c1, c2, c3, c4 = st.columns(4)
 
-        c1.metric("Products", total_products)
-        c2.metric("Average Demand", avg_demand)
-        c3.metric("Average Inventory", avg_inventory)
-        c4.metric("Need Reorder", reorder_products)
+        c1.metric(
+            "Products",
+            total_products
+        )
+
+        c2.metric(
+            "Average Demand",
+            avg_demand
+        )
+
+        c3.metric(
+            "Average Inventory",
+            avg_inventory
+        )
+
+        c4.metric(
+            "Need Reorder",
+            reorder_products
+        )
 
         st.divider()
 
@@ -118,9 +164,14 @@ if page == "🏠 Home":
         )
 
     except Exception as e:
+
         st.error("Unable to load inventory data.")
         st.write(e)
 
+
+# ============================================================
+# DEMAND FORECASTING
+# ============================================================
 
 elif page == "📈 Demand Forecasting":
 
@@ -130,8 +181,16 @@ elif page == "📈 Demand Forecasting":
 
     metrics = pd.DataFrame(
         {
-            "Metric": ["MAE", "RMSE", "R²"],
-            "Value": [12.82, 17.07, 0.868]
+            "Metric": [
+                "MAE",
+                "RMSE",
+                "R²"
+            ],
+            "Value": [
+                12.89,
+                17.20,
+                0.866
+            ]
         }
     )
 
@@ -140,9 +199,12 @@ elif page == "📈 Demand Forecasting":
     st.divider()
 
     try:
+
         forecast = pd.read_csv(FORECAST_PATH)
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(
+            figsize=(10, 5)
+        )
 
         ax.plot(
             forecast["Actual"],
@@ -154,45 +216,72 @@ elif page == "📈 Demand Forecasting":
             label="Predicted"
         )
 
-        ax.set_title("Actual vs Predicted Demand")
-        ax.set_xlabel("Observations")
-        ax.set_ylabel("Demand")
+        ax.set_title(
+            "Actual vs Predicted Demand"
+        )
+
+        ax.set_xlabel(
+            "Observations"
+        )
+
+        ax.set_ylabel(
+            "Demand"
+        )
+
         ax.legend()
 
         st.pyplot(fig)
 
     except Exception as e:
-        st.error("Unable to load forecast results.")
+
+        st.error(
+            "Unable to load forecast results."
+        )
+
         st.write(e)
 
+
+# ============================================================
+# INVENTORY OPTIMIZATION
+# ============================================================
 
 elif page == "📦 Inventory Optimization":
 
     st.title("📦 Inventory Optimization")
 
     try:
-        inventory = pd.read_csv(INVENTORY_PATH)
+
+        inventory = pd.read_csv(
+            INVENTORY_PATH
+        )
 
         selected_product = st.selectbox(
             "Select Product",
-            ["All"] + sorted(
+            ["All"]
+            + sorted(
                 inventory["Product_ID"].unique()
             )
         )
 
         if selected_product != "All":
+
             inventory = inventory[
-                inventory["Product_ID"] == selected_product
+                inventory["Product_ID"]
+                == selected_product
             ]
 
-        st.subheader("Inventory Table")
+        st.subheader(
+            "Inventory Table"
+        )
 
         st.dataframe(
             inventory,
             use_container_width=True
         )
 
-        csv = inventory.to_csv(index=False)
+        csv = inventory.to_csv(
+            index=False
+        )
 
         st.download_button(
             label="📥 Download Inventory Report",
@@ -204,10 +293,13 @@ elif page == "📦 Inventory Optimization":
         st.divider()
 
         low_stock = inventory[
-            inventory["Inventory_Status"] == "Reorder Required"
+            inventory["Inventory_Status"]
+            == "Reorder Required"
         ]
 
-        st.subheader("Products Requiring Reorder")
+        st.subheader(
+            "Products Requiring Reorder"
+        )
 
         st.dataframe(
             low_stock,
@@ -215,9 +307,17 @@ elif page == "📦 Inventory Optimization":
         )
 
     except Exception as e:
-        st.error("Unable to load inventory results.")
+
+        st.error(
+            "Unable to load inventory results."
+        )
+
         st.write(e)
 
+
+# ============================================================
+# PREDICT DEMAND
+# ============================================================
 
 elif page == "Predict Demand":
 
@@ -228,6 +328,10 @@ elif page == "Predict Demand":
     )
 
     st.divider()
+
+    # --------------------------------------------------------
+    # PRODUCT / NUMERICAL INPUTS
+    # --------------------------------------------------------
 
     col1, col2, col3 = st.columns(3)
 
@@ -326,6 +430,10 @@ elif page == "Predict Demand":
             ]
         )
 
+    # --------------------------------------------------------
+    # DATE FEATURES
+    # --------------------------------------------------------
+
     st.divider()
 
     col1, col2, col3, col4 = st.columns(4)
@@ -367,7 +475,13 @@ elif page == "Predict Demand":
             2
         )
 
-    quarter = (month - 1) // 3 + 1
+    # --------------------------------------------------------
+    # DERIVED FEATURES
+    # --------------------------------------------------------
+
+    quarter = (
+        (month - 1) // 3
+    ) + 1
 
     weekofyear = 25
 
@@ -379,63 +493,174 @@ elif page == "Predict Demand":
         price * (1 - discount / 100)
     )
 
+    # --------------------------------------------------------
+    # PREDICTION
+    # --------------------------------------------------------
+
     if st.button(
-        "Predict Demand",
+        "🔮 Predict Demand",
         use_container_width=True
     ):
 
         try:
 
+            # Create dataframe using the exact
+            # deployment feature schema
             input_df = pd.DataFrame(
                 0,
                 index=[0],
                 columns=model_columns
             )
 
+            # ------------------------------------------------
+            # NUMERICAL FEATURES
+            # ------------------------------------------------
+
             input_df["Inventory_Level"] = inventory
+
             input_df["Units_Sold"] = units_sold
+
             input_df["Units_Ordered"] = units_ordered
+
             input_df["Price"] = price
+
             input_df["Discount"] = discount
+
             input_df["Promotion"] = promotion
-            input_df["Competitor_Pricing"] = competitor_price
+
+            input_df["Competitor_Pricing"] = (
+                competitor_price
+            )
+
             input_df["Epidemic"] = epidemic
 
+            # ------------------------------------------------
+            # DATE FEATURES
+            # ------------------------------------------------
+
             input_df["Year"] = year
+
             input_df["Month"] = month
+
             input_df["Day"] = day
+
             input_df["DayOfWeek"] = dayofweek
+
             input_df["Quarter"] = quarter
+
             input_df["WeekOfYear"] = weekofyear
 
-            input_df["Inventory_Turnover"] = inventory_turnover
-            input_df["Discounted_Price"] = discounted_price
+            # ------------------------------------------------
+            # ENGINEERED FEATURES
+            # ------------------------------------------------
 
-            category_col = f"Category_{category}"
+            input_df["Inventory_Turnover"] = (
+                inventory_turnover
+            )
+
+            input_df["Discounted_Price"] = (
+                discounted_price
+            )
+
+            # ------------------------------------------------
+            # ONE-HOT ENCODING
+            # ------------------------------------------------
+
+            category_col = (
+                f"Category_{category}"
+            )
 
             if category_col in input_df.columns:
-                input_df.loc[0, category_col] = 1
 
-            region_col = f"Region_{region}"
+                input_df.loc[
+                    0,
+                    category_col
+                ] = 1
+
+            region_col = (
+                f"Region_{region}"
+            )
 
             if region_col in input_df.columns:
-                input_df.loc[0, region_col] = 1
 
-            weather_col = f"Weather_Condition_{weather}"
+                input_df.loc[
+                    0,
+                    region_col
+                ] = 1
+
+            weather_col = (
+                f"Weather_Condition_{weather}"
+            )
 
             if weather_col in input_df.columns:
-                input_df.loc[0, weather_col] = 1
 
-            season_col = f"Seasonality_{season}"
+                input_df.loc[
+                    0,
+                    weather_col
+                ] = 1
+
+            season_col = (
+                f"Seasonality_{season}"
+            )
 
             if season_col in input_df.columns:
-                input_df.loc[0, season_col] = 1
 
-            prediction = model.predict(input_df)[0]
+                input_df.loc[
+                    0,
+                    season_col
+                ] = 1
+
+            # ------------------------------------------------
+            # FINAL FEATURE VALIDATION
+            # ------------------------------------------------
+
+            if len(model_columns) != 29:
+
+                st.error(
+                    f"Expected 29 model features, "
+                    f"but model_columns.pkl contains "
+                    f"{len(model_columns)}."
+                )
+
+                st.stop()
+
+            missing_features = [
+                feature
+                for feature in model_columns
+                if feature not in input_df.columns
+            ]
+
+            if missing_features:
+
+                st.error(
+                    f"Missing features: "
+                    f"{missing_features}"
+                )
+
+                st.stop()
+
+            # Ensure exact feature order
+            input_df = input_df[
+                model_columns
+            ]
+
+            # ------------------------------------------------
+            # MODEL PREDICTION
+            # ------------------------------------------------
+
+            prediction = model.predict(
+                input_df
+            )[0]
+
+            # ------------------------------------------------
+            # RESULT
+            # ------------------------------------------------
 
             st.divider()
 
-            st.subheader("Prediction Result")
+            st.subheader(
+                "Prediction Result"
+            )
 
             st.metric(
                 "Predicted Demand",
@@ -444,29 +669,37 @@ elif page == "Predict Demand":
 
             if prediction >= 120:
 
-                st.success("🟢 High Demand")
+                st.success(
+                    "🟢 High Demand"
+                )
 
                 st.info(
-                    "Recommendation: Increase inventory "
-                    "to reduce the risk of stock-outs."
+                    "Recommendation: Increase "
+                    "inventory to reduce the risk "
+                    "of stock-outs."
                 )
 
             elif prediction >= 70:
 
-                st.warning("🟡 Medium Demand")
+                st.warning(
+                    "🟡 Medium Demand"
+                )
 
                 st.info(
-                    "Recommendation: Current inventory "
-                    "appears sufficient."
+                    "Recommendation: Current "
+                    "inventory appears sufficient."
                 )
 
             else:
 
-                st.error("🔴 Low Demand")
+                st.error(
+                    "🔴 Low Demand"
+                )
 
                 st.info(
-                    "Recommendation: Avoid overstocking. "
-                    "Consider promotions if required."
+                    "Recommendation: Avoid "
+                    "overstocking. Consider "
+                    "promotions if required."
                 )
 
         except Exception as e:
@@ -476,9 +709,15 @@ elif page == "Predict Demand":
             )
 
 
+# ============================================================
+# MODEL COMPARISON
+# ============================================================
+
 elif page == "🤖 Model Comparison":
 
-    st.title("🤖 Model Comparison")
+    st.title(
+        "🤖 Model Comparison"
+    )
 
     comparison = pd.DataFrame(
         {
@@ -487,18 +726,21 @@ elif page == "🤖 Model Comparison":
                 "ARIMA",
                 "XGBoost"
             ],
+
             "MAE": [
-                12.82,
+                12.89,
                 3169.64,
                 1020.99
             ],
+
             "RMSE": [
-                17.07,
+                17.20,
                 3644.91,
                 1431.94
             ],
+
             "R²": [
-                0.868,
+                0.866,
                 -3.006,
                 0.334
             ]
@@ -524,5 +766,6 @@ elif page == "🤖 Model Comparison":
     )
 
     st.success(
-        "Random Forest is selected as the final deployment model."
+        "Random Forest is selected as "
+        "the final deployment model."
     )
