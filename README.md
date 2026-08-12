@@ -11,6 +11,12 @@
 
 ---
 
+# Live Demo
+
+https://retail-demand-forecasting-inventory-5p3h.onrender.com/
+
+---
+
 # 📖 Overview
 
 Retail businesses often struggle with balancing inventory levels due to uncertain customer demand. Overstocking increases storage costs and capital investment, while understocking leads to missed sales opportunities and dissatisfied customers.
