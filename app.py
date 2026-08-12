@@ -1,27 +1,51 @@
+import os
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import joblib
 
-# -----------------------------
-# Load Machine Learning Model
-# -----------------------------
-model = joblib.load("models/random_forest_model.pkl")
-model_columns = joblib.load("models/model_columns.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# -----------------------------
-# Page Configuration
-# -----------------------------
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    "images",
+    "models",
+    "random_forest_model.pkl"
+)
+
+COLUMNS_PATH = os.path.join(
+    BASE_DIR,
+    "images",
+    "models",
+    "model_columns.pkl"
+)
+
+INVENTORY_PATH = os.path.join(
+    BASE_DIR,
+    "data",
+    "inventory_results.csv"
+)
+
+FORECAST_PATH = os.path.join(
+    BASE_DIR,
+    "data",
+    "forecast_results.csv"
+)
+
 st.set_page_config(
     page_title="Retail Demand Forecasting",
     page_icon="📦",
     layout="wide"
 )
 
-# -----------------------------
-# Sidebar
-# -----------------------------
+try:
+    model = joblib.load(MODEL_PATH)
+    model_columns = joblib.load(COLUMNS_PATH)
+except Exception as e:
+    st.error(f"Unable to load model files: {e}")
+    st.stop()
+
 st.sidebar.title("📋 Navigation")
 
 page = st.sidebar.radio(
@@ -30,83 +54,105 @@ page = st.sidebar.radio(
         "🏠 Home",
         "📈 Demand Forecasting",
         "📦 Inventory Optimization",
-        "🔮 Predict Demand",
+        "Predict Demand",
         "🤖 Model Comparison"
     ]
 )
 
-# -----------------------------
-# HOME
-# -----------------------------
 if page == "🏠 Home":
 
-    inventory = pd.read_csv("data/inventory_results.csv")
+    try:
+        inventory = pd.read_csv(INVENTORY_PATH)
 
-    total_products = inventory["Product_ID"].nunique()
-    avg_inventory = round(inventory["Inventory_Level"].mean(), 2)
-    avg_demand = round(inventory["Average_Daily_Demand"].mean(), 2)
-    reorder_products = len(
-        inventory[
-            inventory["Inventory_Status"] == "Reorder Required"
-        ]
-    )
+        total_products = inventory["Product_ID"].nunique()
 
-    st.title("📦 Retail Demand Forecasting Dashboard")
+        avg_inventory = round(
+            inventory["Inventory_Level"].mean(),
+            2
+        )
 
-    st.caption(
-        "End-to-End Machine Learning | Inventory Optimization | Business Analytics"
-    )
+        avg_demand = round(
+            inventory["Average_Daily_Demand"].mean(),
+            2
+        )
 
-    c1, c2, c3, c4 = st.columns(4)
+        reorder_products = len(
+            inventory[
+                inventory["Inventory_Status"] == "Reorder Required"
+            ]
+        )
 
-    c1.metric("Products", total_products)
-    c2.metric("Average Demand", avg_demand)
-    c3.metric("Average Inventory", avg_inventory)
-    c4.metric("Need Reorder", reorder_products)
+        st.title("📦 Retail Demand Forecasting Dashboard")
 
-    st.divider()
+        st.caption(
+            "End-to-End Machine Learning | Inventory Optimization | Business Analytics"
+        )
 
-    st.subheader("📌 Project Overview")
+        c1, c2, c3, c4 = st.columns(4)
 
-    st.markdown("""
-This dashboard predicts retail demand and helps optimize inventory using machine learning.
+        c1.metric("Products", total_products)
+        c2.metric("Average Demand", avg_demand)
+        c3.metric("Average Inventory", avg_inventory)
+        c4.metric("Need Reorder", reorder_products)
 
-### Technologies Used
+        st.divider()
 
-- Python
-- MySQL
-- Pandas
-- Scikit-Learn
-- ARIMA
-- XGBoost
-- Streamlit
-""")
-# -----------------------------
-# FORECASTING
-# -----------------------------
+        st.subheader("📌 Project Overview")
+
+        st.markdown(
+            """
+            This dashboard predicts retail demand and helps optimize
+            inventory using machine learning.
+
+            ### Technologies Used
+
+            - Python
+            - MySQL
+            - Pandas
+            - Scikit-Learn
+            - ARIMA
+            - XGBoost
+            - Random Forest
+            - Streamlit
+            """
+        )
+
+    except Exception as e:
+        st.error("Unable to load inventory data.")
+        st.write(e)
+
+
 elif page == "📈 Demand Forecasting":
 
     st.title("📈 Demand Forecasting")
 
     st.subheader("Model Performance")
 
-    metrics = pd.DataFrame({
-        "Metric": ["MAE", "RMSE", "R²"],
-        "Value": [12.82, 17.07, 0.868]
-    })
+    metrics = pd.DataFrame(
+        {
+            "Metric": ["MAE", "RMSE", "R²"],
+            "Value": [12.82, 17.07, 0.868]
+        }
+    )
 
     st.table(metrics)
 
     st.divider()
 
     try:
+        forecast = pd.read_csv(FORECAST_PATH)
 
-        forecast = pd.read_csv("data/forecast_results.csv")
+        fig, ax = plt.subplots(figsize=(10, 5))
 
-        fig, ax = plt.subplots(figsize=(10,5))
+        ax.plot(
+            forecast["Actual"],
+            label="Actual"
+        )
 
-        ax.plot(forecast["Actual"], label="Actual")
-        ax.plot(forecast["Predicted"], label="Predicted")
+        ax.plot(
+            forecast["Predicted"],
+            label="Predicted"
+        )
 
         ax.set_title("Actual vs Predicted Demand")
         ax.set_xlabel("Observations")
@@ -116,34 +162,35 @@ elif page == "📈 Demand Forecasting":
         st.pyplot(fig)
 
     except Exception as e:
-
-        st.error("forecast_results.csv not found.")
+        st.error("Unable to load forecast results.")
         st.write(e)
 
-# -----------------------------
-# INVENTORY
-# -----------------------------
+
 elif page == "📦 Inventory Optimization":
 
     st.title("📦 Inventory Optimization")
 
     try:
-
-        inventory = pd.read_csv("data/inventory_results.csv")
+        inventory = pd.read_csv(INVENTORY_PATH)
 
         selected_product = st.selectbox(
             "Select Product",
-            ["All"] + sorted(inventory["Product_ID"].unique())
+            ["All"] + sorted(
+                inventory["Product_ID"].unique()
+            )
         )
 
         if selected_product != "All":
             inventory = inventory[
                 inventory["Product_ID"] == selected_product
-                ]
+            ]
 
         st.subheader("Inventory Table")
 
-        st.dataframe(inventory)
+        st.dataframe(
+            inventory,
+            use_container_width=True
+        )
 
         csv = inventory.to_csv(index=False)
 
@@ -162,173 +209,320 @@ elif page == "📦 Inventory Optimization":
 
         st.subheader("Products Requiring Reorder")
 
-        st.dataframe(low_stock)
+        st.dataframe(
+            low_stock,
+            use_container_width=True
+        )
 
     except Exception as e:
-
-        st.error("inventory_results.csv not found.")
+        st.error("Unable to load inventory results.")
         st.write(e)
-# -----------------------------
-# PREDICT DEMAND
-# -----------------------------
-# -----------------------------
-# PREDICT DEMAND
-# -----------------------------
-elif page == "🔮 Predict Demand":
 
-    st.title("🔮 Predict Demand")
 
-    st.write("Enter product information to predict demand.")
+elif page == "Predict Demand":
 
-    # Numerical Inputs
-    price = st.number_input("Price", value=100.0)
-    discount = st.slider("Discount (%)", 0, 50, 10)
-    inventory = st.number_input("Inventory Level", value=200)
-    units_sold = st.number_input("Units Sold", value=100)
-    units_ordered = st.number_input("Units Ordered", value=120)
-    competitor_price = st.number_input("Competitor Price", value=95.0)
+    st.title("Predict Demand")
 
-    epidemic = st.selectbox("Epidemic", [0, 1])
-    promotion = st.selectbox("Promotion", [0, 1])
-
-    category = st.selectbox(
-        "Category",
-        ["Electronics", "Furniture", "Clothing", "Groceries"]
+    st.write(
+        "Enter product information to predict expected demand."
     )
 
-    region = st.selectbox(
-        "Region",
-        ["North", "South", "East", "West"]
-    )
+    st.divider()
 
-    weather = st.selectbox(
-        "Weather",
-        ["Sunny", "Rainy", "Cloudy", "Snowy"]
-    )
+    col1, col2, col3 = st.columns(3)
 
-    season = st.selectbox(
-        "Season",
-        ["Spring", "Summer", "Autumn", "Winter"]
-    )
+    with col1:
 
-    month = st.slider("Month", 1, 12, 6)
+        price = st.number_input(
+            "Price",
+            min_value=0.0,
+            value=100.0,
+            step=1.0
+        )
 
-    day = st.slider("Day", 1, 31, 15)
+        discount = st.slider(
+            "Discount (%)",
+            min_value=0,
+            max_value=50,
+            value=10
+        )
 
-    dayofweek = st.slider("Day Of Week", 0, 6, 2)
+        inventory = st.number_input(
+            "Inventory Level",
+            min_value=0,
+            value=200,
+            step=1
+        )
+
+        units_sold = st.number_input(
+            "Units Sold",
+            min_value=0,
+            value=100,
+            step=1
+        )
+
+    with col2:
+
+        units_ordered = st.number_input(
+            "Units Ordered",
+            min_value=0,
+            value=120,
+            step=1
+        )
+
+        competitor_price = st.number_input(
+            "Competitor Price",
+            min_value=0.0,
+            value=95.0,
+            step=1.0
+        )
+
+        epidemic = st.selectbox(
+            "Epidemic",
+            [0, 1]
+        )
+
+        promotion = st.selectbox(
+            "Promotion",
+            [0, 1]
+        )
+
+    with col3:
+
+        category = st.selectbox(
+            "Category",
+            [
+                "Electronics",
+                "Furniture",
+                "Groceries",
+                "Toys"
+            ]
+        )
+
+        region = st.selectbox(
+            "Region",
+            [
+                "North",
+                "South",
+                "West"
+            ]
+        )
+
+        weather = st.selectbox(
+            "Weather",
+            [
+                "Sunny",
+                "Rainy",
+                "Snowy"
+            ]
+        )
+
+        season = st.selectbox(
+            "Season",
+            [
+                "Spring",
+                "Summer",
+                "Winter"
+            ]
+        )
+
+    st.divider()
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+
+        year = st.number_input(
+            "Year",
+            min_value=2000,
+            max_value=2100,
+            value=2026,
+            step=1
+        )
+
+    with col2:
+
+        month = st.slider(
+            "Month",
+            1,
+            12,
+            6
+        )
+
+    with col3:
+
+        day = st.slider(
+            "Day",
+            1,
+            31,
+            15
+        )
+
+    with col4:
+
+        dayofweek = st.slider(
+            "Day Of Week",
+            0,
+            6,
+            2
+        )
 
     quarter = (month - 1) // 3 + 1
 
     weekofyear = 25
 
-    inventory_turnover = units_sold / max(inventory, 1)
+    inventory_turnover = (
+        units_sold / max(inventory, 1)
+    )
 
-    discounted_price = price * (1 - discount / 100)
+    discounted_price = (
+        price * (1 - discount / 100)
+    )
 
-    if st.button("Predict Demand"):
+    if st.button(
+        "Predict Demand",
+        use_container_width=True
+    ):
 
-        input_df = pd.DataFrame(
-            columns=model_columns
-        )
+        try:
 
-        input_df.loc[0] = 0
+            input_df = pd.DataFrame(
+                0,
+                index=[0],
+                columns=model_columns
+            )
 
-        # Numerical features
-        input_df["Inventory_Level"] = inventory
-        input_df["Units_Sold"] = units_sold
-        input_df["Units_Ordered"] = units_ordered
-        input_df["Price"] = price
-        input_df["Discount"] = discount
-        input_df["Promotion"] = promotion
-        input_df["Competitor_Pricing"] = competitor_price
-        input_df["Epidemic"] = epidemic
+            input_df["Inventory_Level"] = inventory
+            input_df["Units_Sold"] = units_sold
+            input_df["Units_Ordered"] = units_ordered
+            input_df["Price"] = price
+            input_df["Discount"] = discount
+            input_df["Promotion"] = promotion
+            input_df["Competitor_Pricing"] = competitor_price
+            input_df["Epidemic"] = epidemic
 
-        input_df["Month"] = month
-        input_df["Day"] = day
-        input_df["DayOfWeek"] = dayofweek
-        input_df["Quarter"] = quarter
-        input_df["WeekOfYear"] = weekofyear
+            input_df["Year"] = year
+            input_df["Month"] = month
+            input_df["Day"] = day
+            input_df["DayOfWeek"] = dayofweek
+            input_df["Quarter"] = quarter
+            input_df["WeekOfYear"] = weekofyear
 
-        input_df["Inventory_Turnover"] = inventory_turnover
-        input_df["Discounted_Price"] = discounted_price
+            input_df["Inventory_Turnover"] = inventory_turnover
+            input_df["Discounted_Price"] = discounted_price
 
-        # One-hot encoded columns
-        category_col = f"Category_{category}"
-        if category_col in input_df.columns:
-            input_df.loc[0, category_col] = 1
+            category_col = f"Category_{category}"
 
-        region_col = f"Region_{region}"
-        if region_col in input_df.columns:
-            input_df.loc[0, region_col] = 1
+            if category_col in input_df.columns:
+                input_df.loc[0, category_col] = 1
 
-        weather_col = f"Weather_Condition_{weather}"
-        if weather_col in input_df.columns:
-            input_df.loc[0, weather_col] = 1
+            region_col = f"Region_{region}"
 
-        season_col = f"Seasonality_{season}"
-        if season_col in input_df.columns:
-            input_df.loc[0, season_col] = 1
+            if region_col in input_df.columns:
+                input_df.loc[0, region_col] = 1
 
-        prediction = model.predict(input_df)[0]
+            weather_col = f"Weather_Condition_{weather}"
 
-        if prediction >= 120:
-            st.success(f"📈 Predicted Demand: {prediction:.2f} units")
-            st.markdown("### 🟢 High Demand")
-            st.info("Recommendation: Increase inventory to avoid stock-outs.")
+            if weather_col in input_df.columns:
+                input_df.loc[0, weather_col] = 1
 
-        elif prediction >= 70:
-            st.warning(f"📈 Predicted Demand: {prediction:.2f} units")
-            st.markdown("### 🟡 Medium Demand")
-            st.info("Recommendation: Current inventory appears sufficient.")
+            season_col = f"Seasonality_{season}"
 
-        else:
-            st.error(f"📈 Predicted Demand: {prediction:.2f} units")
-            st.markdown("### 🔴 Low Demand")
-            st.info("Recommendation: Avoid overstocking. Consider promotions if needed.")
+            if season_col in input_df.columns:
+                input_df.loc[0, season_col] = 1
 
-# -----------------------------
-# MODEL COMPARISON
-# -----------------------------
+            prediction = model.predict(input_df)[0]
+
+            st.divider()
+
+            st.subheader("Prediction Result")
+
+            st.metric(
+                "Predicted Demand",
+                f"{prediction:.2f} units"
+            )
+
+            if prediction >= 120:
+
+                st.success("🟢 High Demand")
+
+                st.info(
+                    "Recommendation: Increase inventory "
+                    "to reduce the risk of stock-outs."
+                )
+
+            elif prediction >= 70:
+
+                st.warning("🟡 Medium Demand")
+
+                st.info(
+                    "Recommendation: Current inventory "
+                    "appears sufficient."
+                )
+
+            else:
+
+                st.error("🔴 Low Demand")
+
+                st.info(
+                    "Recommendation: Avoid overstocking. "
+                    "Consider promotions if required."
+                )
+
+        except Exception as e:
+
+            st.error(
+                f"Prediction failed: {e}"
+            )
+
+
 elif page == "🤖 Model Comparison":
 
     st.title("🤖 Model Comparison")
 
-    comparison = pd.DataFrame({
+    comparison = pd.DataFrame(
+        {
+            "Model": [
+                "Random Forest",
+                "ARIMA",
+                "XGBoost"
+            ],
+            "MAE": [
+                12.82,
+                3169.64,
+                1020.99
+            ],
+            "RMSE": [
+                17.07,
+                3644.91,
+                1431.94
+            ],
+            "R²": [
+                0.868,
+                -3.006,
+                0.334
+            ]
+        }
+    )
 
-        "Model":[
-            "Random Forest",
-            "ARIMA",
-            "XGBoost"
-        ],
-
-        "MAE":[
-            12.82,
-            3169.64,
-            1020.99
-        ],
-
-        "RMSE":[
-            17.07,
-            3644.91,
-            1431.94
-        ],
-
-        "R²":[
-            0.868,
-            -3.006,
-            0.334
-        ]
-
-    })
+    st.dataframe(
+        comparison,
+        use_container_width=True
+    )
 
     fig = px.bar(
         comparison,
         x="Model",
         y="R²",
         color="Model",
-        title="Model Comparison (R² Score)"
+        title="Model Comparison — R² Score"
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
 
-    st.success("Random Forest is selected as the final deployment model.")
+    st.success(
+        "Random Forest is selected as the final deployment model."
+    )
