@@ -13,7 +13,7 @@
 
 # Live Demo
 
-https://retail-demand-forecasting-inventory-5p3h.onrender.com/
+https://retaildemandforecastinginventoryoptimization.streamlit.app/
 
 ---
 
